@@ -22,7 +22,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key:scaffoldKey ,
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
@@ -47,7 +47,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
-                 email = value;
+                  email = value;
                 },
                 decoration:
                     kTextFieldDecoration.copyWith(hintText: 'Enter Your Email'),
@@ -60,19 +60,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 obscureText: isVisible,
                 onChanged: (value) {
-                 password = value;
+                  password = value;
                 },
                 decoration: kTextFieldDecoration.copyWith(
-                  suffixIcon: IconButton(onPressed: (){
-
-                   setState(() {
-                     if(isVisible==true){
-                       isVisible = false;
-                     }else if(isVisible==false){
-                       isVisible=true;
-                     }                   });
-                  }, icon: isVisible? Icon(Icons.visibility_off):Icon(Icons.visibility),
-                  ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if (isVisible == true) {
+                            isVisible = false;
+                          } else if (isVisible == false) {
+                            isVisible = true;
+                          }
+                        });
+                      },
+                      icon: isVisible
+                          ? Icon(Icons.visibility_off)
+                          : Icon(Icons.visibility),
+                    ),
                     hintText: 'Enter Your Password'),
               ),
               SizedBox(
@@ -82,9 +86,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 title: 'Register',
                 color: Colors.blueAccent,
                 onPressed: () async {
-setState(() {
-  showSpinner = true;
-});
+                  setState(() {
+                    showSpinner = true;
+                  });
                   try {
                     print('==========> email : $email');
                     final newUser = await _auth.createUserWithEmailAndPassword(
@@ -96,30 +100,31 @@ setState(() {
                     setState(() {
                       showSpinner = false;
                     });
-
-                  }on FirebaseAuthException  catch (e) {
-                   await Future.delayed(Duration(seconds: 1));
+                  } on FirebaseAuthException catch (e) {
+                    await Future.delayed(Duration(seconds: 1));
                     setState(() {
                       showSpinner = false;
                     });
-                   switch (e.code) {
-                     case 'weak-password':
-                       errorMsg = 'weak password';
-                       break;
-                     case 'email-already-in-use':
-                       errorMsg = 'The account already exists for that email.';
-                       break;
-                     case 'invalid-email':
-                       errorMsg = 'Invalid Email';
-                       break;
-                     case 'too-many-requests':
-                       errorMsg = "too many requests";
-                       break;
+                    switch (e.code) {
+                      case 'weak-password':
+                        errorMsg = 'weak password';
+                        break;
+                      case 'email-already-in-use':
+                        errorMsg = 'The account already exists for that email.';
+                        break;
+                      case 'invalid-email':
+                        errorMsg = 'Invalid Email';
+                        break;
+                      case 'too-many-requests':
+                        errorMsg = "too many requests";
+                        break;
 
-                     default:
-                       errorMsg = "Please check your internet connection";
-                   }
-                    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(errorMsg),));
+                      default:
+                        errorMsg = "Please check your internet connection";
+                    }
+                    scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text(errorMsg),
+                    ));
 
                     print(e);
                   }
