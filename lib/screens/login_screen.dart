@@ -4,6 +4,7 @@ import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'chat_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const id = 'login_screen';
@@ -17,10 +18,14 @@ class _LoginScreenState extends State<LoginScreen> {
   String email;
   String password;
   bool showSpinner = false;
+  bool isVisible = false;
+  String errorMsg;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
@@ -44,26 +49,42 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               TextField(
                 keyboardAppearance: Brightness.dark,
-                textAlign: TextAlign.center,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
                   email = value;
                 },
-                decoration:
-                    kTextFieldDecoration.copyWith(hintText: 'Enter Your Email'),
+                decoration: kTextFieldDecoration.copyWith(
+                  hintText: 'Enter Your Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                ),
               ),
               SizedBox(
                 height: 8.0,
               ),
               TextField(
                 keyboardAppearance: Brightness.dark,
-                textAlign: TextAlign.center,
-                obscureText: true,
+                obscureText: isVisible,
                 onChanged: (value) {
                   password = value;
                 },
                 decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Enter Your Password'),
+                  prefixIcon: Icon(Icons.lock_outline_rounded),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (isVisible == true) {
+                          isVisible = false;
+                        } else if (isVisible == false) {
+                          isVisible = true;
+                        }
+                      });
+                    },
+                    icon: isVisible
+                        ? Icon(Icons.visibility_off)
+                        : Icon(Icons.visibility),
+                  ),
+                  hintText: 'Enter Your Password',
+                ),
               ),
               SizedBox(
                 height: 24.0,
@@ -85,8 +106,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     setState(() {
                       showSpinner = false;
                     });
+                  } on FirebaseAuthException catch (e) {
+                    await Future.delayed(Duration(seconds: 1));
+                    setState(() {
+                      showSpinner = false;
+                    });
+                    switch (e.code) {
+                      case 'weak-password':
+                        errorMsg = 'weak password';
+                        break;
+                      case 'email-already-in-use':
+                        errorMsg = 'The account already exists for that email.';
+                        break;
+                      case 'invalid-email':
+                        errorMsg = 'Invalid Email';
+                        break;
+                      case 'too-many-requests':
+                        errorMsg = "too many requests";
+                        break;
 
-                  } catch (e) {
+                      default:
+                        errorMsg = "Please check your internet connection";
+                    }
+                    scaffoldKey.currentState.showSnackBar(SnackBar(
+                      backgroundColor: Colors.redAccent,
+                      content: Text(
+                        errorMsg,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                    ));
                     print(e);
                   }
                 },

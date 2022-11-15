@@ -19,6 +19,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String errorMsg;
   bool isVisible = false;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,25 +47,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               TextField(
                 keyboardAppearance: Brightness.dark,
-                textAlign: TextAlign.center,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
                   email = value;
                 },
-                decoration:
-                    kTextFieldDecoration.copyWith(hintText: 'Enter Your Email'),
+                decoration: kTextFieldDecoration.copyWith(
+                    prefixIcon: Icon(Icons.email_outlined),
+                    hintText: 'Enter Your Email'),
               ),
               SizedBox(
                 height: 8.0,
               ),
               TextField(
                 keyboardAppearance: Brightness.dark,
-                textAlign: TextAlign.center,
                 obscureText: isVisible,
                 onChanged: (value) {
                   password = value;
                 },
                 decoration: kTextFieldDecoration.copyWith(
+                    prefixIcon: Icon(Icons.lock_outline_rounded),
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
@@ -125,9 +126,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         errorMsg = "Please check your internet connection";
                     }
                     scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text(errorMsg),
+                      backgroundColor: Colors.redAccent,
+                      content: Text(
+                        errorMsg,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20.0),
+                      ),
                     ));
-
                     print(e);
                   }
                 },
