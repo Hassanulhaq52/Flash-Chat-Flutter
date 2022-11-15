@@ -59,7 +59,6 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-
                 _auth.signOut();
                 Navigator.pop(context);
                 print('user logout successfully');
@@ -86,8 +85,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 final messages = snapshot.data.docs;
                 List<Text> messageWidgets = [];
                 for (var message in messages) {
-                  final messageText = message.data['text'];
-                  final messageSender = message.data['sender'];
+
+                  final messageT = message.data() as Map<String,dynamic>;
+                  final messageText = messageT['text'];
+                  final messageS = message.data() as Map<String,dynamic>;
+                  final messageSender = messageS['sender'];
+
+
+                  // iterate text key in message
+
+                  // final messageText = message.data['text']??'';
+                  // final messageSender = message.data['sender']?? '';
 
                   final messageWidget =
                       Text('$messageText from $messageSender');

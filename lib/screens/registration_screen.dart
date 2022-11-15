@@ -16,10 +16,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
   String password;
   bool showSpinner = false;
-
+  String errorMsg;
+  bool isVisible = false;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key:scaffoldKey ,
       backgroundColor: Colors.white,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
@@ -44,7 +47,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
-                 value = email;
+                 email = value;
                 },
                 decoration:
                     kTextFieldDecoration.copyWith(hintText: 'Enter Your Email'),
@@ -55,11 +58,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               TextField(
                 keyboardAppearance: Brightness.dark,
                 textAlign: TextAlign.center,
-                obscureText: true,
+                obscureText: isVisible,
                 onChanged: (value) {
-                 value = password;
+                 password = value;
                 },
                 decoration: kTextFieldDecoration.copyWith(
+                  suffixIcon: IconButton(onPressed: (){
+
+                   setState(() {
+                     if(isVisible==true){
+                       isVisible = false;
+                     }else if(isVisible==false){
+                       isVisible=true;
+                     }                   });
+                  }, icon: isVisible? Icon(Icons.visibility_off):Icon(Icons.visibility),
+                  ),
                     hintText: 'Enter Your Password'),
               ),
               SizedBox(
@@ -73,8 +86,10 @@ setState(() {
   showSpinner = true;
 });
                   try {
+                    print('==========> email : $email');
                     final newUser = await _auth.createUserWithEmailAndPassword(
                         email: email, password: password);
+
                     if (newUser != null) {
                       Navigator.pushNamed(context, ChatScreen.id);
                     }
@@ -82,7 +97,30 @@ setState(() {
                       showSpinner = false;
                     });
 
-                  } catch (e) {
+                  }on FirebaseAuthException  catch (e) {
+                   await Future.delayed(Duration(seconds: 1));
+                    setState(() {
+                      showSpinner = false;
+                    });
+                   switch (e.code) {
+                     case 'weak-password':
+                       errorMsg = 'weak password';
+                       break;
+                     case 'email-already-in-use':
+                       errorMsg = 'The account already exists for that email.';
+                       break;
+                     case 'invalid-email':
+                       errorMsg = 'Invalid Email';
+                       break;
+                     case 'too-many-requests':
+                       errorMsg = "too many requests";
+                       break;
+
+                     default:
+                       errorMsg = "Please check your internet connection";
+                   }
+                    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(errorMsg),));
+
                     print(e);
                   }
                 },
